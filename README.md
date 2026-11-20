@@ -28,15 +28,34 @@ This prototype delivers the core **clinical triage & telemetry evaluation engine
 - **Phase 4 (Resilient Edge & Hardware Scale):** IoT wearable vitals streaming, offline mesh-network relays during connectivity blackouts, and medical supply routing via containerized cloud microservices[cite: 14, 15, 16].
 ## Quick Start (Local FastAPI Server)
 ```bash
-## Roadmap & Future Scope (Planned Phases)
+# Nio OmniCare — Clinical Telemetry & Non-Diagnostic Patient Triage Engine
 
-While the current prototype delivers the **core non-diagnostic clinical triage and telemetry engine** (`index.html` and `app/main.py`), it is designed as the triage core of a broader **Crisis-Resilient Emergency & Care Continuity Network** across three planned phases:
+**Nio OmniCare** is a non-diagnostic clinical telemetry and patient triage decision-support prototype designed for the **Population Health: Closing the Screening-to-Care Loop** challenge. It evaluates patient symptoms and vital signs (`SpO2`, `Heart Rate`, and `Temperature`) to categorize cases into **Critical**, **Urgent**, or **Routine** urgency tiers with structured JSON output, governance flags, and immediate dispatch indicators.
 
-1. **Patient Follow-Up Alerts (Closing the Screening-to-Care Loop):**
-   - Automated multi-lingual follow-up reminders and escalation alerts for patients flagged during screenings or urgent/routine check-ins so no high-risk patient is lost to follow-up.
-2. **Hospital & Blood Bank Resource Links:**
-   - Referral and resource lookup connecting `Critical` and `Urgent` triage outputs with nearby hospitals, emergency/ICU bed availability, and blood bank support.
-3. **Disaster & Low-Connectivity Care Support:**
-   - Offline-first local caching, deterministic rule fallback, and store-and-forward telemetry sync for field teams operating during emergencies, disasters, or weak network conditions.
+- **Live Web Dashboard (GitHub Pages):** `https://nileshritik2312-cyber.github.io/nio-omnicare/`
+- **Source Repository:** `https://github.com/nileshritik2312-cyber/nio-omnicare`
+
+---
+
+## Key Features
+
+- **Three-Tier Triage Classification:** Classifies incoming patient telemetry and symptom notes into **Critical** (red), **Urgent** (amber), and **Routine** (green) levels.
+- **Quick Sample Presets:** One-click test cases for **Critical (`PT-7734`)**, **Urgent (`PT-4091`)**, and **Routine (`PT-1024`)**, plus custom symptom and vital-sign inputs.
+- **Hybrid AI + Deterministic Rule Fallback:** Supports optional Gemini API evaluation when an API key is provided and seamlessly falls back to deterministic clinical rules when offline, unauthenticated, or experiencing network issues.
+- **Structured JSON & Governance Output:** Displays confidence scores, recommended next actions, `governance_flag`, `requires_immediate_dispatch`, and formatted JSON for downstream care-loop integration.
+- **Responsive Layout:** Designed to keep vital-sign inputs (`SpO2 (%)`, `Heart Rate (bpm)`, and `Temp (°C)`) and assessment panels readable across desktop, zoomed, and smaller screens.
+
+---
+
+## Project Structure
+
+```text
+nio-omnicare/
+├── app/
+│   └── main.py          # Python FastAPI backend & triage API logic
+├── index.html           # Interactive frontend dashboard & client-side fallback engine
+├── requirements.txt     # Python dependencies for FastAPI and server runtime
+├── LICENSE              # Repository license (MIT)
+└── README.md            # Project documentation, safety notice, and roadmap
 pip install -r requirements.txt
 uvicorn app.main:app --reload
