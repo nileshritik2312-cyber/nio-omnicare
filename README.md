@@ -20,7 +20,12 @@
 - **Prototype Scope:** The rule-based fallback uses simplified threshold heuristics suitable for a prototype rather than validated emergency department triage scales (such as ESI or CTAS).
 - **No External EHR / Device Integration:** Telemetry is entered manually or via preset payloads rather than streamed directly from bedside monitors or hospital information systems.
 - **API & Network Dependency for Live LLM Mode:** Live Gemini responses require network access, a valid `GEMINI_API_KEY`, and available API quota; otherwise the deterministic fallback engine handles requests.
-
+## 5. Roadmap & Blueprint Alignment
+This prototype delivers the core **clinical triage & telemetry evaluation engine** for the broader **Nio OmniCare** vision (*Future Health Digital Innovation Challenge — Population Health: Closing the Screening-to-Care Loop*)[cite: 12]:
+- **Phase 1 (Current Prototype):** Interactive triage dashboard (`index.html`), FastAPI service (`app/main.py`), and hybrid Gemini + deterministic clinical fallback engine.
+- **Phase 2 (Care Loop & Multi-Lingual Nudges):** Screening-to-care follow-up tracking for clinics, camps, and frontline health workers (ASHAs/ANMs), paired with multi-lingual SMS/WhatsApp follow-up nudges for vulnerable groups[cite: 12, 13, 15].
+- **Phase 3 (Crisis & Resource Coordination):** Multi-node registry and geospatial routing for hospitals, blood/organ banks, pharmaceuticals, and transport using PostgreSQL/PostGIS and disaster code protocols (Code Red, Amber, Blue)[cite: 12, 13, 14, 15].
+- **Phase 4 (Resilient Edge & Hardware Scale):** IoT wearable vitals streaming, offline mesh-network relays during connectivity blackouts, and medical supply routing via containerized cloud microservices[cite: 14, 15, 16].
 ## Quick Start (Local FastAPI Server)
 ```bash
 pip install -r requirements.txt
