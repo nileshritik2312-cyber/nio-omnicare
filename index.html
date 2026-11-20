@@ -6,26 +6,26 @@
   <title>Nio OmniCare — Clinical Telemetry &amp; Patient Triage Engine</title>
   <style>
     :root {
-      --bg: #0b1120;
-      --surface: #111827;
-      --surface-alt: #1e293b;
-      --border: #334155;
+      --bg: #070d19;
+      --panel: #0f172a;
+      --panel-alt: #162033;
+      --border: #28364f;
       --text: #f8fafc;
-      --text-muted: #94a3b8;
+      --muted: #94a3b8;
       --accent: #38bdf8;
-      --accent-hover: #0284c7;
-      --critical-bg: rgba(239, 68, 68, 0.16);
-      --critical-border: #ef4444;
-      --critical-text: #fca5a5;
-      --urgent-bg: rgba(245, 158, 11, 0.16);
-      --urgent-border: #f59e0b;
-      --urgent-text: #fcd34d;
-      --routine-bg: rgba(16, 185, 129, 0.16);
-      --routine-border: #10b981;
-      --routine-text: #6ee7b7;
+      --accent-strong: #0284c7;
+      --crit-bg: rgba(239, 68, 68, 0.16);
+      --crit-border: #ef4444;
+      --crit-text: #fca5a5;
+      --urg-bg: rgba(245, 158, 11, 0.16);
+      --urg-border: #f59e0b;
+      --urg-text: #fcd34d;
+      --rout-bg: rgba(16, 185, 129, 0.16);
+      --rout-border: #10b981;
+      --rout-text: #6ee7b7;
     }
 
-    * {
+    *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
@@ -33,103 +33,99 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
-      background: radial-gradient(circle at top right, #1e293b 0%, var(--bg) 55%);
+      background: linear-gradient(160deg, #0f172a 0%, var(--bg) 65%);
       color: var(--text);
       line-height: 1.5;
       min-height: 100vh;
-      padding: 20px;
+      padding: 18px;
     }
 
-    .container {
-      max-width: 1240px;
+    .app-shell {
+      max-width: 1280px;
       margin: 0 auto;
     }
 
-    header {
+    .topbar {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
       gap: 12px;
-      background: var(--surface);
+      background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 18px 24px;
-      margin-bottom: 20px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      padding: 16px 22px;
+      margin-bottom: 18px;
     }
 
-    .brand h1 {
-      font-size: 1.5rem;
+    .brand-title {
+      font-size: 1.45rem;
       font-weight: 700;
       letter-spacing: -0.02em;
       color: #ffffff;
     }
 
-    .brand p {
-      font-size: 0.9rem;
-      color: var(--text-muted);
+    .brand-sub {
+      font-size: 0.88rem;
+      color: var(--muted);
       margin-top: 2px;
     }
 
-    .status-pill {
+    .engine-badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
       background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.4);
-      color: #7dd3fc;
-      padding: 8px 14px;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #bae6fd;
+      padding: 7px 14px;
       border-radius: 999px;
-      font-size: 0.85rem;
+      font-size: 0.84rem;
       font-weight: 600;
+      white-space: nowrap;
     }
 
-    .status-dot {
+    .engine-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
       background: #22c55e;
-      box-shadow: 0 0 8px #22c55e;
+      flex-shrink: 0;
     }
 
-    .main-grid {
+    .workspace {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
       align-items: start;
     }
 
     .card {
-      background: var(--surface);
+      background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 22px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      padding: 20px;
       min-width: 0;
     }
 
-    .card-title {
-      font-size: 1.1rem;
-      font-weight: 600;
+    .card-header {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #ffffff;
+      padding-bottom: 12px;
       margin-bottom: 16px;
-      padding-bottom: 10px;
       border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
     }
 
-    .preset-row {
+    .presets {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
 
     .preset-btn {
-      background: var(--surface-alt);
+      background: var(--panel-alt);
       border: 1px solid var(--border);
       color: var(--text);
       padding: 10px 8px;
@@ -137,106 +133,118 @@
       font-size: 0.82rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.15s ease;
-      text-align: center;
+      min-width: 0;
+      transition: border-color 0.15s ease, background 0.15s ease;
     }
 
     .preset-btn:hover {
       border-color: var(--accent);
-      background: #26354d;
+      background: #1f2e48;
     }
 
-    .preset-btn.critical { border-left: 4px solid #ef4444; }
-    .preset-btn.urgent { border-left: 4px solid #f59e0b; }
-    .preset-btn.routine { border-left: 4px solid #10b981; }
+    .preset-btn.crit { border-top: 3px solid var(--crit-border); }
+    .preset-btn.urg  { border-top: 3px solid var(--urg-border); }
+    .preset-btn.rout { border-top: 3px solid var(--rout-border); }
 
-    .form-group {
-      margin-bottom: 15px;
+    .field {
+      margin-bottom: 14px;
+      min-width: 0;
     }
 
-    label {
+    .field-label {
       display: block;
-      font-size: 0.84rem;
+      font-size: 0.82rem;
       font-weight: 600;
-      color: var(--text-muted);
+      color: var(--muted);
       margin-bottom: 6px;
     }
 
-    input, textarea {
+    .input-control,
+    .textarea-control {
       width: 100%;
       min-width: 0;
       background: var(--bg);
       border: 1px solid var(--border);
-      color: var(--text);
       border-radius: 9px;
-      padding: 10px 12px;
-      font-size: 0.95rem;
+      color: var(--text);
       font-family: inherit;
-      transition: border-color 0.15s ease;
+      font-size: 0.94rem;
+      padding: 10px 12px;
     }
 
-    input:focus, textarea:focus {
+    .input-control:focus,
+    .textarea-control:focus {
       outline: none;
       border-color: var(--accent);
     }
 
-    textarea {
+    .textarea-control {
+      min-height: 74px;
       resize: vertical;
-      min-height: 76px;
     }
 
-    .vitals-grid {
+    /* Vitals row designed so SpO2, Heart Rate, and Temp always stay visible */
+    .vitals-row {
       display: grid;
-      grid-template-columns: repeat(3, minmax(95px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
       margin-bottom: 16px;
     }
 
-    .vital-box {
-      background: var(--surface-alt);
+    .vital-card {
+      background: var(--panel-alt);
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 10px;
       min-width: 0;
     }
 
-    .vital-box label {
+    .vital-label {
+      display: block;
       font-size: 0.78rem;
+      font-weight: 700;
+      color: #cbd5e1;
       margin-bottom: 6px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .vital-box input {
+    .vital-input {
+      width: 100%;
+      min-width: 0;
+      background: var(--bg);
+      border: 1px solid #3b4f70;
+      border-radius: 8px;
+      color: #ffffff;
       font-size: 1.05rem;
       font-weight: 700;
       text-align: center;
-      padding: 8px 6px;
+      padding: 8px 4px;
     }
 
-    .primary-btn {
+    .vital-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .submit-btn {
       width: 100%;
-      background: linear-gradient(135deg, #0284c7, #2563eb);
+      background: linear-gradient(135deg, var(--accent-strong), #2563eb);
       color: #ffffff;
       border: none;
       border-radius: 10px;
-      padding: 13px 18px;
-      font-size: 0.98rem;
+      padding: 12px 16px;
+      font-size: 0.96rem;
       font-weight: 700;
       cursor: pointer;
-      transition: opacity 0.15s ease, transform 0.1s ease;
     }
 
-    .primary-btn:hover {
-      opacity: 0.94;
+    .submit-btn:hover {
+      filter: brightness(1.08);
     }
 
-    .primary-btn:active {
-      transform: scale(0.99);
-    }
-
-    .assessment-header {
+    .result-top {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
@@ -245,223 +253,228 @@
       margin-bottom: 14px;
     }
 
-    .urgency-badge {
+    .badge {
       display: inline-block;
       padding: 6px 14px;
       border-radius: 999px;
-      font-size: 0.85rem;
+      font-size: 0.84rem;
       font-weight: 800;
       letter-spacing: 0.04em;
       text-transform: uppercase;
-      border: 1px solid var(--critical-border);
-      background: var(--critical-bg);
-      color: var(--critical-text);
+      border: 1px solid var(--crit-border);
+      background: var(--crit-bg);
+      color: var(--crit-text);
     }
 
-    .urgency-badge.urgent {
-      border-color: var(--urgent-border);
-      background: var(--urgent-bg);
-      color: var(--urgent-text);
+    .badge.urgent {
+      border-color: var(--urg-border);
+      background: var(--urg-bg);
+      color: var(--urg-text);
     }
 
-    .urgency-badge.routine {
-      border-color: var(--routine-border);
-      background: var(--routine-bg);
-      color: var(--routine-text);
+    .badge.routine {
+      border-color: var(--rout-border);
+      background: var(--rout-bg);
+      color: var(--rout-text);
     }
 
-    .confidence-tag {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      background: var(--surface-alt);
+    .confidence-pill {
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      color: #cbd5e1;
       padding: 5px 11px;
       border-radius: 8px;
-      border: 1px solid var(--border);
+      font-size: 0.84rem;
+      font-weight: 600;
     }
 
-    .clinical-note {
-      background: var(--surface-alt);
-      border-left: 4px solid #ef4444;
-      padding: 14px 16px;
+    .note-box {
+      background: var(--panel-alt);
+      border-left: 4px solid var(--crit-border);
       border-radius: 8px;
-      font-size: 0.95rem;
-      margin-bottom: 16px;
+      padding: 12px 14px;
+      font-size: 0.92rem;
+      margin-bottom: 14px;
+      overflow-wrap: anywhere;
     }
 
-    .clinical-note.urgent { border-left-color: #f59e0b; }
-    .clinical-note.routine { border-left-color: #10b981; }
+    .note-box.urgent { border-left-color: var(--urg-border); }
+    .note-box.routine { border-left-color: var(--rout-border); }
 
-    .meta-grid {
+    .action-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 11px 14px;
+      font-size: 0.9rem;
+      margin-bottom: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    .action-card strong {
+      color: #7dd3fc;
+    }
+
+    .flags-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
-    .meta-item {
+    .flag-box {
       background: var(--bg);
       border: 1px solid var(--border);
       border-radius: 9px;
       padding: 10px 12px;
-      font-size: 0.85rem;
     }
 
-    .meta-item span {
+    .flag-box span {
       display: block;
-      color: var(--text-muted);
       font-size: 0.76rem;
-      margin-bottom: 2px;
+      color: var(--muted);
     }
 
-    .action-box {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      padding: 12px 14px;
-      font-size: 0.9rem;
-      margin-bottom: 16px;
+    .flag-box strong {
+      font-size: 0.95rem;
+      color: #ffffff;
     }
 
-    .action-box strong {
-      color: #7dd3fc;
-    }
-
-    pre {
-      background: #060a14;
+    .json-viewer {
+      background: #050811;
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 14px;
-      font-size: 0.82rem;
+      padding: 12px;
+      font-size: 0.8rem;
       color: #93c5fd;
       white-space: pre-wrap;
-      word-break: break-word;
-      overflow-x: auto;
-      max-height: 290px;
+      overflow-wrap: anywhere;
+      max-height: 260px;
+      overflow-y: auto;
     }
 
-    footer {
-      margin-top: 20px;
-      text-align: center;
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      padding: 12px;
-      background: var(--surface);
+    .footer-note {
+      margin-top: 18px;
+      background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 12px;
+      padding: 12px 16px;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--muted);
     }
 
-    @media (max-width: 520px) {
-      .preset-row, .vitals-grid {
+    @media (max-width: 900px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 540px) {
+      .presets,
+      .vitals-row,
+      .flags-grid {
         grid-template-columns: 1fr;
       }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div class="brand">
-        <h1>Nio OmniCare</h1>
-        <p>Clinical Telemetry &amp; Non-Diagnostic Patient Triage Engine</p>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <h1 class="brand-title">Nio OmniCare</h1>
+        <p class="brand-sub">Clinical Telemetry &amp; Non-Diagnostic Patient Triage Engine</p>
       </div>
-      <div class="status-pill" id="engineStatus">
-        <span class="status-dot"></span>
+      <div class="engine-badge">
+        <span class="engine-dot"></span>
         <span id="engineStatusText">Engine: Clinical Rule Fallback (Ready)</span>
       </div>
     </header>
 
-    <div class="main-grid">
-      <!-- Left Card: Patient Intake & Telemetry -->
+    <main class="workspace">
       <section class="card">
-        <div class="card-title">
-          <span>Patient Intake &amp; Telemetry</span>
-        </div>
+        <h2 class="card-header">Patient Intake &amp; Telemetry</h2>
 
-        <div class="preset-row">
-          <button type="button" class="preset-btn critical" onclick="loadPreset('critical')">
-            Load Critical<br><small>(PT-7734)</small>
+        <div class="presets">
+          <button type="button" class="preset-btn crit" onclick="loadPreset('critical')">
+            Load Critical<br /><small>(PT-7734)</small>
           </button>
-          <button type="button" class="preset-btn urgent" onclick="loadPreset('urgent')">
-            Load Urgent<br><small>(PT-4091)</small>
+          <button type="button" class="preset-btn urg" onclick="loadPreset('urgent')">
+            Load Urgent<br /><small>(PT-4091)</small>
           </button>
-          <button type="button" class="preset-btn routine" onclick="loadPreset('routine')">
-            Load Routine<br><small>(PT-1024)</small>
+          <button type="button" class="preset-btn rout" onclick="loadPreset('routine')">
+            Load Routine<br /><small>(PT-1024)</small>
           </button>
         </div>
 
-        <div class="form-group">
-          <label for="patientId">Patient ID</label>
-          <input type="text" id="patientId" value="PT-7734" />
+        <div class="field">
+          <label class="field-label" for="patientId">Patient ID</label>
+          <input class="input-control" type="text" id="patientId" value="PT-7734" />
         </div>
 
-        <div class="form-group">
-          <label for="symptoms">Reported Symptoms (comma-separated)</label>
-          <textarea id="symptoms">chest pain, severe shortness of breath</textarea>
+        <div class="field">
+          <label class="field-label" for="symptoms">Reported Symptoms (comma-separated)</label>
+          <textarea class="textarea-control" id="symptoms">chest pain, severe shortness of breath</textarea>
         </div>
 
-        <div class="vitals-grid">
-          <div class="vital-box">
-            <label for="spo2">SpO2 (%)</label>
-            <input type="number" id="spo2" value="90" min="50" max="100" />
+        <div class="vitals-row">
+          <div class="vital-card">
+            <label class="vital-label" for="spo2">SpO2 (%)</label>
+            <input class="vital-input" type="number" id="spo2" value="90" min="50" max="100" />
           </div>
-          <div class="vital-box">
-            <label for="heartRate">Heart Rate (bpm)</label>
-            <input type="number" id="heartRate" value="140" min="20" max="260" />
+          <div class="vital-card">
+            <label class="vital-label" for="heartRate">Heart Rate (bpm)</label>
+            <input class="vital-input" type="number" id="heartRate" value="140" min="20" max="260" />
           </div>
-          <div class="vital-box">
-            <label for="temp">Temp (&deg;C)</label>
-            <input type="number" id="temp" value="37.4" step="0.1" min="30" max="44" />
+          <div class="vital-card">
+            <label class="vital-label" for="temp">Temp (&deg;C)</label>
+            <input class="vital-input" type="number" id="temp" value="37.4" step="0.1" min="10" max="44" />
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="apiKey">Optional Gemini API Key (Leave blank for offline clinical fallback)</label>
-          <input type="password" id="apiKey" placeholder="AIzaSy... (optional)" />
+        <div class="field">
+          <label class="field-label" for="apiKey">Optional Gemini API Key (Leave blank for offline fallback)</label>
+          <input class="input-control" type="password" id="apiKey" placeholder="AIzaSy... (optional)" />
         </div>
 
-        <button type="button" class="primary-btn" onclick="evaluateTriage()">
+        <button type="button" class="submit-btn" onclick="evaluateTriage()">
           Evaluate Triage Telemetry
         </button>
       </section>
 
-      <!-- Right Card: Structured Triage Assessment -->
       <section class="card">
-        <div class="card-title">
-          <span>Structured Triage Assessment</span>
+        <h2 class="card-header">Structured Triage Assessment</h2>
+
+        <div class="result-top">
+          <span class="badge" id="urgencyBadge">CRITICAL</span>
+          <span class="confidence-pill" id="confidenceTag">Confidence: 0.96</span>
         </div>
 
-        <div class="assessment-header">
-          <span class="urgency-badge" id="urgencyBadge">CRITICAL</span>
-          <span class="confidence-tag" id="confidenceTag">Confidence: 0.96</span>
-        </div>
+        <div class="note-box" id="clinicalNote"></div>
 
-        <div class="clinical-note" id="clinicalNote">
-          High-risk presentation (chest pain, severe shortness of breath) with abnormal telemetry (SpO2 90%, HR 140 bpm) requires immediate emergency escalation.
-        </div>
-
-        <div class="action-box">
+        <div class="action-card">
           <strong>Recommended Action:</strong>
-          <span id="recommendedAction">Escalate immediately to emergency physician/resuscitation team and initiate continuous cardiopulmonary monitoring.</span>
+          <span id="recommendedAction"></span>
         </div>
 
-        <div class="meta-grid">
-          <div class="meta-item">
+        <div class="flags-grid">
+          <div class="flag-box">
             <span>Governance Flag</span>
             <strong id="governanceFlag">true</strong>
           </div>
-          <div class="meta-item">
+          <div class="flag-box">
             <span>Immediate Dispatch</span>
             <strong id="dispatchFlag">true</strong>
           </div>
         </div>
 
-        <label>Structured JSON Output</label>
-        <pre id="jsonOutput">{}</pre>
+        <label class="field-label" for="jsonOutput">Structured JSON Output</label>
+        <pre class="json-viewer" id="jsonOutput">{}</pre>
       </section>
-    </div>
+    </main>
 
-    <footer>
+    <footer class="footer-note">
       Clinical Governance Notice: Nio OmniCare is a non-diagnostic triage decision-support prototype and does not replace licensed medical evaluation.
     </footer>
   </div>
@@ -502,40 +515,28 @@
       evaluateTriage();
     }
 
- function runDeterministicTriage(payload) {
+    function runDeterministicTriage(payload) {
       const text = payload.symptoms.toLowerCase();
       const { spo2, heart_rate, temp } = payload;
 
       const criticalKeywords = [
-        "chest pain", "severe shortness of breath", "shortness of breath",
-        "unconscious", "unresponsive", "fainting", "syncope",
-        "bleeding", "blood", "hemorrhage", "accident", "trauma",
-        "fracture", "head injury", "stroke", "paralysis", "slurred speech",
-        "seizure", "convulsion", "choking", "anaphylaxis", "severe allergic",
-        "poisoning", "overdose", "burns", "suicidal", "shock", "cyanosis",
-        "severe abdominal pain"
+        "chest pain", "shortness of breath", "breathless", "unconscious",
+        "unresponsive", "fainting", "syncope", "bleed", "bleeding", "blood",
+        "hemorrhage", "accident", "accedent", "acident", "trauma", "fracture",
+        "head injury", "stroke", "paralysis", "slurred speech", "seizure",
+        "convulsion", "choking", "anaphylaxis", "poisoning", "overdose",
+        "burns", "suicidal", "shock", "cyanosis", "severe pain"
       ];
 
       const urgentKeywords = [
-        "fever", "high fever", "dizziness", "dizzy", "dehydration",
-        "vomiting", "persistent vomiting", "diarrhea", "infection",
-        "asthma", "wheezing", "moderate pain", "sprain", "burn",
-        "palpitations", "confusion", "migraine", "severe headache",
-        "ear pain", "urinary pain", "high blood pressure", "hypertension",
-        "low blood sugar", "hypoglycemia", "abnormal screening"
-      ];
-
-      const routineKeywords = [
-        "mild cough", "cough", "cold", "nasal congestion", "runny nose",
-        "sore throat", "mild headache", "fatigue", "tiredness",
-        "routine checkup", "follow-up", "follow up", "screening review",
-        "prescription refill", "vaccination", "mild rash", "minor ache",
-        "back stiffness", "seasonal allergy"
+        "fever", "dizziness", "dizzy", "dehydration", "vomiting",
+        "diarrhea", "infection", "asthma", "wheezing", "sprain",
+        "palpitations", "confusion", "migraine", "headache", "ear pain",
+        "urinary pain", "hypertension", "hypoglycemia", "abnormal screening"
       ];
 
       const hasCriticalKeyword = criticalKeywords.some((kw) => text.includes(kw));
       const hasUrgentKeyword = urgentKeywords.some((kw) => text.includes(kw));
-      const hasRoutineKeyword = routineKeywords.some((kw) => text.includes(kw));
 
       const isCritical =
         spo2 < 92 ||
@@ -558,8 +559,8 @@
           patient_id: payload.patient_id,
           urgency_level: "Critical",
           recommended_action:
-            "Escalate immediately to emergency physician/resuscitation team, initiate continuous cardiopulmonary monitoring, and coordinate rapid emergency transport.",
-          ai_clinical_note: `Critical risk presentation (${payload.symptoms}) with telemetry (SpO2 ${spo2}%, HR ${heart_rate} bpm, Temp ${temp}°C) requires immediate emergency escalation and care-loop dispatch.`,
+            "Escalate immediately to emergency physician/resuscitation team, initiate continuous monitoring, and dispatch emergency care.",
+          ai_clinical_note: `Critical presentation (${payload.symptoms}) with telemetry (SpO2 ${spo2}%, HR ${heart_rate} bpm, Temp ${temp}°C) requires immediate emergency escalation.`,
           confidence_score: 0.96,
           governance_flag: true,
           metadata: {
@@ -577,8 +578,8 @@
           patient_id: payload.patient_id,
           urgency_level: "Urgent",
           recommended_action:
-            "Prioritize clinician or community health center evaluation within 30–60 minutes, recheck vitals every 15 minutes, and log follow-up tracking.",
-          ai_clinical_note: `Urgent presentation (${payload.symptoms}) with telemetry (SpO2 ${spo2}%, HR ${heart_rate} bpm, Temp ${temp}°C) warrants timely clinical review to prevent deterioration.`,
+            "Prioritize clinician or health-center review within 30–60 minutes, recheck vitals every 15 minutes, and track follow-up.",
+          ai_clinical_note: `Urgent presentation (${payload.symptoms}) with telemetry (SpO2 ${spo2}%, HR ${heart_rate} bpm, Temp ${temp}°C) warrants timely clinical evaluation.`,
           confidence_score: 0.91,
           governance_flag: true,
           metadata: {
@@ -591,16 +592,12 @@
         };
       }
 
-      const notePrefix = hasRoutineKeyword
-        ? `Routine/low-acuity presentation (${payload.symptoms})`
-        : `Stable presentation (${payload.symptoms})`;
-
       return {
         patient_id: payload.patient_id,
         urgency_level: "Routine",
         recommended_action:
-          "Schedule standard outpatient or screening-to-care follow-up, share clear home-care guidance, and advise return if symptoms worsen.",
-        ai_clinical_note: `${notePrefix} with telemetry (SpO2 ${spo2}%, HR ${heart_rate} bpm, Temp ${temp}°C) fits a routine care pathway with scheduled follow-up.`,
+          "Schedule routine outpatient or screening-to-care follow-up, share care guidance, and advise return if symptoms worsen.",
+        ai_clinical_note: `Routine presentation (${payload.symptoms}) with telemetry (SpO2 ${spo2}%, HR ${heart_rate} bpm, Temp ${temp}°C) fits a standard care pathway.`,
         confidence_score: 0.94,
         governance_flag: false,
         metadata: {
@@ -611,7 +608,7 @@
           timestamp: new Date().toISOString()
         }
       };
-    } 
+    }
 
     function renderResult(result) {
       const level = (result.urgency_level || "Routine").toLowerCase();
@@ -619,10 +616,10 @@
       const note = document.getElementById("clinicalNote");
 
       badge.textContent = result.urgency_level.toUpperCase();
-      badge.className = "urgency-badge " + (level === "critical" ? "" : level);
+      badge.className = "badge " + (level === "critical" ? "" : level);
 
       note.textContent = result.ai_clinical_note;
-      note.className = "clinical-note " + (level === "critical" ? "" : level);
+      note.className = "note-box " + (level === "critical" ? "" : level);
 
       document.getElementById("confidenceTag").textContent =
         "Confidence: " + Number(result.confidence_score).toFixed(2);
@@ -661,7 +658,7 @@
 
       statusText.textContent = "Engine: Querying Gemini API...";
       try {
-        const prompt = `You are a non-diagnostic clinical triage decision-support engine. Classify the patient telemetry into Critical, Urgent, or Routine and return ONLY valid JSON with keys: patient_id, urgency_level, recommended_action, ai_clinical_note, confidence_score, governance_flag, metadata (with ui_badge_color, requires_immediate_dispatch, engine_mode, timestamp). Payload: ${JSON.stringify(payload)}`;
+        const prompt = `You are a non-diagnostic clinical triage decision-support engine. Classify the patient telemetry into Critical, Urgent, or Routine and return ONLY valid JSON with keys: patient_id, urgency_level, recommended_action, ai_clinical_note, confidence_score, governance_flag, metadata (with ui_badge_color, requires_immediate_dispatch, care_loop_status, engine_mode, timestamp). Payload: ${JSON.stringify(payload)}`;
         const res = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
           {
