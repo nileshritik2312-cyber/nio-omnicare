@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nio OmniCare — Clinical Triage & Telemetry Engine</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card: #111827;
+      --border: #1f2937;
+      --text: #f3f4f6;
+      --muted: #9ca3af;
+      --accent: #38bdf8;
+      --red: #ef4444;
+      --amber: #f59e0b;
+      --green: #10b981;
+    }
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { margin: 0; background: var(--bg); color: var(--text); padding: 24px; }
+    .container { max-width: 1040px; margin: 0 auto; }
+    header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    h1 { margin: 0; font-size: 1.5rem; letter-spacing: -0.02em; }
+    .subtitle { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+    .pill { background: #1e293b; border: 1px solid #334155; padding: 6px 12px; border-radius: 999px; font-size: 0.8rem; color: var(--accent); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .card h2 { margin-top: 0; font-size: 1.1rem; color: #e5e7eb; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    label { display: block; font-size: 0.85rem; color: var(--muted); margin: 12px 0 6px; }
+    input, textarea { width: 100%; background: #0f172a; border: 1px solid #334155; color: var(--text); border-radius: 8px; padding: 10px; font-size: 0.95rem; }
+    .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .presets { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    button { cursor: pointer; border: none; border-radius: 8px; padding: 10px 14px; font-weight: 600; font-size: 0.88rem; transition: opacity 0.15s; }
+    button:hover { opacity: 0.9; }
+    .btn-preset { background: #1e293b; color: #e2e8f0; border: 1px solid #334155; }
+    .btn-primary { background: var(--accent); color: #082f49; width: 100%; margin-top: 16px; font-size: 1rem; padding: 12px; }
+    .badge { display: inline-block; padding: 6px 14px; border-radius: 999px; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; }
+    .badge-red { background: rgba(239,68,68,0.18); color: #fca5a5; border: 1px solid var(--red); }
+    .badge-amber { background: rgba(245,158,11,0.18); color: #fcd34d; border: 1px solid var(--amber); }
+    .badge-green { background: rgba(16,185,129,0.18); color: #6ee7b7; border: 1px solid var(--green); }
+    .note-box { background: #0f172a; border-left: 4px solid var(--accent); padding: 12px 14px; border-radius: 6px; margin: 14px 0; line-height: 1.5; }
+    pre { background: #090d16; border: 1px solid var(--border); padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 0.82rem; color: #a5f3fc; }
+    .disclaimer { margin-top: 24px; font-size: 0.8rem; color: var(--muted); text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Nio OmniCare</h1>
+        <div class="subtitle">Clinical Telemetry & Non-Diagnostic Patient Triage Engine</div>
+      </div>
+      <div class="pill" id="engineStatus">Hybrid Clinical Engine: Ready</div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Patient Intake & Telemetry</h2>
+        <div class="presets">
+          <button class="btn-preset" onclick="loadPreset('critical')">Load Critical (PT-7734)</button>
+          <button class="btn-preset" onclick="loadPreset('urgent')">Load Urgent (PT-4091)</button>
+          <button class="btn-preset" onclick="loadPreset('routine')">Load Routine (PT-1024)</button>
+        </div>
+
+        <label>Patient ID</label>
+        <input id="patientId" value="PT-7734" />
+
+        <label>Reported Symptoms (comma-separated)</label>
+        <textarea id="symptoms" rows="2">chest pain, severe shortness of breath</textarea>
+
+        <div class="row">
+          <div>
+            <label>SpO2 (%)</label>
+            <input id="spo2" type="number" value="90" />
+          </div>
+          <div>
+            <label>Heart Rate (bpm)</label>
+            <input id="hr" type="number" value="140" />
+          </div>
+          <div>
+            <label>Temp (°C)</label>
+            <input id="temp" type="number" step="0.1" value="37.2" />
+          </div>
+        </div>
+
+        <label>Optional: Live Gemini API Key (leave blank for offline clinical fallback)</label>
+        <input id="apiKey" type="password" placeholder="AIza... (optional)" />
+
+        <button class="btn-primary" onclick="runTriage()">Evaluate Triage Telemetry</button>
+      </div>
+
+      <div class="card">
+        <h2>Structured Triage Assessment</h2>
+        <div id="resultHeader" style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="badge badge-red" id="urgencyBadge">CRITICAL</span>
+          <span style="color:var(--muted); font-size:0.85rem;" id="confidenceText">Confidence: 0.96</span>
+        </div>
+
+        <div class="note-box" id="clinicalNote">
+          Click "Evaluate Triage Telemetry" to run clinical risk stratification.
+        </div>
+
+        <p style="font-size:0.9rem;"><strong>Recommended Action:</strong> <span id="recAction">—</span></p>
+        <p style="font-size:0.85rem; color:var(--muted);"><strong>Governance Flag:</strong> <span id="govFlag">—</span> | <strong>Immediate Dispatch:</strong> <span id="dispatchFlag">—</span></p>
+
+        <label>Structured JSON Output</label>
+        <pre id="jsonOutput">{}</pre>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      Clinical Governance Notice: Nio OmniCare is a non-diagnostic triage decision-support prototype and does not replace licensed medical evaluation.
+    </div>
+  </div>
+
+  <script>
+    const presets = {
+      critical: { id: "PT-7734", symptoms: "chest pain, severe shortness of breath", spo2: 90, hr: 140, temp: 37.2 },
+      urgent:   { id: "PT-4091", symptoms: "persistent high fever, dizziness, dehydration", spo2: 95, hr: 112, temp: 39.1 },
+      routine:  { id: "PT-1024", symptoms: "mild sore throat, low-grade fever for 2 days", spo2: 98, hr: 78, temp: 37.6 }
+    };
+
+    function loadPreset(type) {
+      const p = presets[type];
+      document.getElementById("patientId").value = p.id;
+      document.getElementById("symptoms").value = p.symptoms;
+      document.getElementById("spo2").value = p.spo2;
+      document.getElementById("hr").value = p.hr;
+      document.getElementById("temp").value = p.temp;
+      runTriage();
+    }
+
+    function localClinicalFallback(payload) {
+      const symText = payload.symptoms.join(", ").toLowerCase();
+      const { spo2, heart_rate, temperature_c } = payload.vital_signs;
+      const redFlags = ["chest pain", "shortness of breath", "unconscious", "stroke", "severe bleeding", "syncope"];
+      const hasRedFlag = redFlags.some(f => symText.includes(f));
+
+      let urgency = "Routine", color = "green", dispatch = false, gov = false, conf = 0.92;
+      let action = "Schedule standard outpatient or telehealth review and continue routine symptom monitoring.";
+      let note = `Patient ${payload.patient_id} presents with ${payload.symptoms.join(", ")} and stable vitals (SpO2 ${spo2}%, HR ${heart_rate} bpm). No immediate red-flag telemetry detected.`;
+
+      if (hasRedFlag || spo2 < 92 || heart_rate >= 130 || heart_rate <= 45) {
+        urgency = "Critical"; color = "red"; dispatch = true; gov = true; conf = 0.96;
+        action = "Escalate immediately to emergency physician/resuscitation team and initiate continuous cardiopulmonary monitoring.";
+        note = `High-risk presentation (${payload.symptoms.join(", ")}) with abnormal telemetry (SpO2 ${spo2}%, HR ${heart_rate} bpm) requires immediate emergency escalation.`;
+      } else if (spo2 < 95 || heart_rate > 105 || temperature_c >= 38.5 || symText.includes("dizziness")) {
+        urgency = "Urgent"; color = "amber"; dispatch = false; gov = true; conf = 0.90;
+        action = "Prioritize prompt clinician evaluation within 30–60 minutes and repeat vital signs.";
+        note = `Patient reports ${payload.symptoms.join(", ")} accompanied by moderately abnormal vitals (SpO2 ${spo2}%, HR ${heart_rate} bpm, Temp ${temperature_c}°C), warranting prompt clinical review.`;
+      }
+
+      return {
+        patient_id: payload.patient_id,
+        urgency_level: urgency,
+        recommended_action: action,
+        ai_clinical_note: note,
+        confidence_score: conf,
+        governance_flag: gov,
+        metadata: {
+          ui_badge_color: color,
+          requires_immediate_dispatch: dispatch,
+          timestamp: new Date().toISOString()
+        }
+      };
+    }
+
+    async function runTriage() {
+      const payload = {
+        patient_id: document.getElementById("patientId").value.trim() || "PT-0001",
+        symptoms: document.getElementById("symptoms").value.split(",").map(s => s.trim()).filter(Boolean),
+        vital_signs: {
+          spo2: Number(document.getElementById("spo2").value),
+          heart_rate: Number(document.getElementById("hr").value),
+          temperature_c: Number(document.getElementById("temp").value)
+        }
+      };
+
+      const apiKey = document.getElementById("apiKey").value.trim();
+      const statusEl = document.getElementById("engineStatus");
+      let result = null;
+
+      if (apiKey) {
+        try {
+          statusEl.textContent = "Querying Gemini API...";
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              system_instruction: { parts: [{ text: "You are Nio OmniCare, a non-diagnostic clinical triage assistant. Return strictly valid JSON with keys: patient_id, urgency_level (Critical|Urgent|Routine), recommended_action, ai_clinical_note, confidence_score, governance_flag, metadata (ui_badge_color, requires_immediate_dispatch, timestamp)." }] },
+              contents: [{ parts: [{ text: JSON.stringify(payload) }] }],
+              generationConfig: { temperature: 0.2, responseMimeType: "application/json" }
+            })
+          });
+          if (!res.ok) throw new Error("Quota or API error");
+          const data = await res.json();
+          result = JSON.parse(data.candidates[0].content.parts[0].text);
+          statusEl.textContent = "Engine: Live Gemini API";
+        } catch (e) {
+          result = localClinicalFallback(payload);
+          statusEl.textContent = "Engine: Clinical Rule Fallback (API Limit/Offline)";
+        }
+      } else {
+        result = localClinicalFallback(payload);
+        statusEl.textContent = "Engine: Clinical Rule Fallback (Ready)";
+      }
+
+      const badge = document.getElementById("urgencyBadge");
+      badge.textContent = result.urgency_level;
+      badge.className = `badge badge-${result.metadata.ui_badge_color}`;
+      document.getElementById("confidenceText").textContent = `Confidence: ${result.confidence_score}`;
+      document.getElementById("clinicalNote").textContent = result.ai_clinical_note;
+      document.getElementById("recAction").textContent = result.recommended_action;
+      document.getElementById("govFlag").textContent = result.governance_flag;
+      document.getElementById("dispatchFlag").textContent = result.metadata.requires_immediate_dispatch;
+      document.getElementById("jsonOutput").textContent = JSON.stringify(result, null, 2);
+    }
+
+    runTriage();
+  </script>
+</body>
+</html>
