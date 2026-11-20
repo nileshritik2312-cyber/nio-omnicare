@@ -502,38 +502,70 @@
       evaluateTriage();
     }
 
-    function runDeterministicTriage(payload) {
+ function runDeterministicTriage(payload) {
       const text = payload.symptoms.toLowerCase();
       const { spo2, heart_rate, temp } = payload;
+
+      const criticalKeywords = [
+        "chest pain", "severe shortness of breath", "shortness of breath",
+        "unconscious", "unresponsive", "fainting", "syncope",
+        "bleeding", "blood", "hemorrhage", "accident", "trauma",
+        "fracture", "head injury", "stroke", "paralysis", "slurred speech",
+        "seizure", "convulsion", "choking", "anaphylaxis", "severe allergic",
+        "poisoning", "overdose", "burns", "suicidal", "shock", "cyanosis",
+        "severe abdominal pain"
+      ];
+
+      const urgentKeywords = [
+        "fever", "high fever", "dizziness", "dizzy", "dehydration",
+        "vomiting", "persistent vomiting", "diarrhea", "infection",
+        "asthma", "wheezing", "moderate pain", "sprain", "burn",
+        "palpitations", "confusion", "migraine", "severe headache",
+        "ear pain", "urinary pain", "high blood pressure", "hypertension",
+        "low blood sugar", "hypoglycemia", "abnormal screening"
+      ];
+
+      const routineKeywords = [
+        "mild cough", "cough", "cold", "nasal congestion", "runny nose",
+        "sore throat", "mild headache", "fatigue", "tiredness",
+        "routine checkup", "follow-up", "follow up", "screening review",
+        "prescription refill", "vaccination", "mild rash", "minor ache",
+        "back stiffness", "seasonal allergy"
+      ];
+
+      const hasCriticalKeyword = criticalKeywords.some((kw) => text.includes(kw));
+      const hasUrgentKeyword = urgentKeywords.some((kw) => text.includes(kw));
+      const hasRoutineKeyword = routineKeywords.some((kw) => text.includes(kw));
 
       const isCritical =
         spo2 < 92 ||
         heart_rate > 130 ||
         heart_rate < 45 ||
-        text.includes("chest pain") ||
-        text.includes("shortness of breath") ||
-        text.includes("unconscious");
+        temp >= 40.5 ||
+        temp <= 35.0 ||
+        hasCriticalKeyword;
 
       const isUrgent =
         !isCritical &&
         (spo2 < 95 ||
           heart_rate > 105 ||
-          temp >= 38.5 ||
-          text.includes("fever") ||
-          text.includes("dizziness"));
+          heart_rate < 55 ||
+          temp >= 38.3 ||
+          hasUrgentKeyword);
 
       if (isCritical) {
         return {
           patient_id: payload.patient_id,
           urgency_level: "Critical",
           recommended_action:
-            "Escalate immediately to emergency physician/resuscitation team and initiate continuous cardiopulmonary monitoring.",
-          ai_clinical_note: `High-risk presentation (${payload.symptoms}) with abnormal telemetry (SpO2 ${spo2}%, HR ${heart_rate} bpm, Temp ${temp}°C) requires immediate emergency escalation.`,
+            "Escalate immediately to emergency physician/resuscitation team, initiate continuous cardiopulmonary monitoring, and coordinate rapid emergency transport.",
+          ai_clinical_note: `Critical risk presentation (${payload.symptoms}) with telemetry (SpO2 ${spo2}%, HR ${heart_rate} bpm, Temp ${temp}°C) requires immediate emergency escalation and care-loop dispatch.`,
           confidence_score: 0.96,
           governance_flag: true,
           metadata: {
             ui_badge_color: "red",
             requires_immediate_dispatch: true,
+            care_loop_status: "immediate_emergency_escalation",
             engine_mode: "deterministic_clinical_fallback",
             timestamp: new Date().toISOString()
           }
@@ -545,35 +577,41 @@
           patient_id: payload.patient_id,
           urgency_level: "Urgent",
           recommended_action:
-            "Prioritize clinician evaluation within 30 minutes and recheck vital signs every 15 minutes.",
-          ai_clinical_note: `Moderate-risk presentation (${payload.symptoms}) with borderline telemetry (SpO2 ${spo2}%, HR ${heart_rate} bpm, Temp ${temp}°C) warrants prompt clinical review.`,
+            "Prioritize clinician or community health center evaluation within 30–60 minutes, recheck vitals every 15 minutes, and log follow-up tracking.",
+          ai_clinical_note: `Urgent presentation (${payload.symptoms}) with telemetry (SpO2 ${spo2}%, HR ${heart_rate} bpm, Temp ${temp}°C) warrants timely clinical review to prevent deterioration.`,
           confidence_score: 0.91,
           governance_flag: true,
           metadata: {
             ui_badge_color: "amber",
             requires_immediate_dispatch: false,
+            care_loop_status: "priority_clinical_followup",
             engine_mode: "deterministic_clinical_fallback",
             timestamp: new Date().toISOString()
           }
         };
       }
 
+      const notePrefix = hasRoutineKeyword
+        ? `Routine/low-acuity presentation (${payload.symptoms})`
+        : `Stable presentation (${payload.symptoms})`;
+
       return {
         patient_id: payload.patient_id,
         urgency_level: "Routine",
         recommended_action:
-          "Schedule standard outpatient follow-up and provide home care guidance with return precautions.",
-        ai_clinical_note: `Stable presentation (${payload.symptoms}) with normal telemetry (SpO2 ${spo2}%, HR ${heart_rate} bpm, Temp ${temp}°C) suitable for routine care pathway.`,
+          "Schedule standard outpatient or screening-to-care follow-up, share clear home-care guidance, and advise return if symptoms worsen.",
+        ai_clinical_note: `${notePrefix} with telemetry (SpO2 ${spo2}%, HR ${heart_rate} bpm, Temp ${temp}°C) fits a routine care pathway with scheduled follow-up.`,
         confidence_score: 0.94,
         governance_flag: false,
         metadata: {
           ui_badge_color: "green",
           requires_immediate_dispatch: false,
+          care_loop_status: "scheduled_routine_followup",
           engine_mode: "deterministic_clinical_fallback",
           timestamp: new Date().toISOString()
         }
       };
-    }
+    } 
 
     function renderResult(result) {
       const level = (result.urgency_level || "Routine").toLowerCase();
