@@ -28,5 +28,15 @@ This prototype delivers the core **clinical triage & telemetry evaluation engine
 - **Phase 4 (Resilient Edge & Hardware Scale):** IoT wearable vitals streaming, offline mesh-network relays during connectivity blackouts, and medical supply routing via containerized cloud microservices[cite: 14, 15, 16].
 ## Quick Start (Local FastAPI Server)
 ```bash
+## Roadmap & Future Scope (Planned Phases)
+
+While the current prototype delivers the **core non-diagnostic clinical triage and telemetry engine** (`index.html` and `app/main.py`), it is designed as the triage core of a broader **Crisis-Resilient Emergency & Care Continuity Network** across three planned phases:
+
+1. **Patient Follow-Up Alerts (Closing the Screening-to-Care Loop):**
+   - Automated multi-lingual follow-up reminders and escalation alerts for patients flagged during screenings or urgent/routine check-ins so no high-risk patient is lost to follow-up.
+2. **Hospital & Blood Bank Resource Links:**
+   - Referral and resource lookup connecting `Critical` and `Urgent` triage outputs with nearby hospitals, emergency/ICU bed availability, and blood bank support.
+3. **Disaster & Low-Connectivity Care Support:**
+   - Offline-first local caching, deterministic rule fallback, and store-and-forward telemetry sync for field teams operating during emergencies, disasters, or weak network conditions.
 pip install -r requirements.txt
 uvicorn app.main:app --reload
